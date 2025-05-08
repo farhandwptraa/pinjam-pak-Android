@@ -105,6 +105,19 @@ fun LoginScreen(
                 Text(text = state.error, color = Color.Red)
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Belum punya akun?")
+                TextButton(onClick = { navController.navigate(Constants.DESTINATION_REGISTER) }) {
+                    Text("Daftar")
+                }
+            }
+
             LaunchedEffect(state.isLoggedIn) {
                 if (state.isLoggedIn) {
                     navController.navigate(Constants.DESTINATION_HOME)

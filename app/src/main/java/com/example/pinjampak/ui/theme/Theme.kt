@@ -15,7 +15,6 @@ private val LightColors = lightColorScheme(
     onBackground = TextPrimary,
     onError = Color.White,
 )
-
 @Composable
 fun PinjampakTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
