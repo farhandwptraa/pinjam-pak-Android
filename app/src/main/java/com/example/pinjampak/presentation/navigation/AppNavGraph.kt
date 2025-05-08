@@ -19,7 +19,7 @@ fun AppNavGraph(navController: NavHostController) {
             LoginScreen(navController = navController)
         }
         composable(Constants.DESTINATION_HOME) {
-            HomeScreen()
+            HomeScreen(navController = navController)
         }
         composable(Constants.DESTINATION_REGISTER) {
             RegisterScreen(navController = navController)

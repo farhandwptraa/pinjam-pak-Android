@@ -120,7 +120,9 @@ fun LoginScreen(
 
             LaunchedEffect(state.isLoggedIn) {
                 if (state.isLoggedIn) {
-                    navController.navigate(Constants.DESTINATION_HOME)
+                    navController.navigate(Constants.DESTINATION_HOME) {
+                        popUpTo(Constants.DESTINATION_LOGIN) { inclusive = true }
+                    }
                 }
             }
         }
