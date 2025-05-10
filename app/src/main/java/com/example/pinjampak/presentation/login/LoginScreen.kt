@@ -42,7 +42,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             // Username Label and Input Field
-            Text(text = "Username", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "Username or Email", style = MaterialTheme.typography.bodyMedium)
             Spacer(modifier = Modifier.height(8.dp))
             BasicTextField(
                 value = state.username,

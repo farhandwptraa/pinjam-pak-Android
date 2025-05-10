@@ -1,4 +1,11 @@
 package com.example.pinjampak.domain.repository
 
-class ProfileRepository {
+import com.example.pinjampak.data.local.entity.CustomerProfileEntity
+import com.example.pinjampak.data.local.entity.UserProfileEntity
+
+interface ProfileRepository {
+    suspend fun fetchAndCacheUserProfile(): UserProfileEntity?
+    suspend fun fetchAndCacheCustomerProfile(): CustomerProfileEntity?
+    suspend fun getCachedUserProfile(username: String): UserProfileEntity?
+    suspend fun getCachedCustomerProfile(username: String): CustomerProfileEntity?
 }

@@ -18,4 +18,11 @@ class SharedPrefHelper(context: Context) {
 
     // Fungsi lain yang mengakses SharedPreferences
     fun getRoleId(): String? = pref.getString("role_id", null)
+
+    // Menambah fungsi untuk mengambil dan menyimpan username
+    fun saveUsername(username: String) {
+        pref.edit().putString("username", username).apply()
+    }
+
+    fun getUsername(): String? = pref.getString("username", null)
 }

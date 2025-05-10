@@ -66,9 +66,9 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     // Room
-    implementation("androidx.room:room-runtime:2.6.1")
-    kapt("androidx.room:room-compiler:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
+    implementation("androidx.room:room-runtime:2.7.1")
+    kapt("androidx.room:room-compiler:2.7.1")
+    implementation("androidx.room:room-ktx:2.7.1")
 
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:32.7.4"))
@@ -83,4 +83,5 @@ dependencies {
     implementation ("com.squareup.moshi:moshi-kotlin:1.13.0")
     // Retrofit Moshi Converter
     implementation ("com.squareup.retrofit2:converter-moshi:2.9.0")
+    implementation("org.jetbrains.kotlin:kotlin-metadata-jvm:2.1.20")
 }
