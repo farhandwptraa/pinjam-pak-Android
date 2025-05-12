@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "29525165356",
+    "project_id": "pinjam-pak",
+    "storage_bucket": "pinjam-pak.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:29525165356:android:e080a8fdf0bd87b1ac5889",
+        "android_client_info": {
+          "package_name": "com.example.pinjampak"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPX8xC-xnLPNRNlEWhSvfPD86w8tdzwC8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
