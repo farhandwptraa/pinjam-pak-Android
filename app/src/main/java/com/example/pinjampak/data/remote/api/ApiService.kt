@@ -1,9 +1,15 @@
 package com.example.pinjampak.data.remote.api
 
-import com.example.pinjampak.data.remote.dto.UserResponse
 import com.example.pinjampak.data.remote.dto.CustomerResponse
+import com.example.pinjampak.data.remote.dto.UserResponse
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Multipart
+import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 
 interface ApiService {
@@ -13,7 +19,14 @@ interface ApiService {
         @Path("username") username: String
     ): UserResponse
 
-
     @GET("/api/customers/me")
     suspend fun getCustomerMe(@Header("Authorization") token: String): CustomerResponse
+
+    @Multipart
+    @POST("/api/customers/register")
+    suspend fun registerCustomer(
+        @Header("Authorization") token: String,
+        @Part("data") data: RequestBody, // kirim sebagai JSON utuh
+        @Part fotoKtp: MultipartBody.Part
+    ): Response<String>
 }

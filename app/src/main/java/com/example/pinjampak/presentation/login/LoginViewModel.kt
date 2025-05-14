@@ -39,9 +39,10 @@ class LoginViewModel @Inject constructor(
                 )
                 val response = authRepository.login(request)
 
-                // ✅ Simpan token dan username ke SharedPreferences
+                // ✅ Simpan token, username, role_id, dan customerId
                 sharedPrefManager.saveToken(response.token)
                 sharedPrefManager.saveUsername(response.username)
+                sharedPrefManager.saveCustomerId(response.customerId ?: "") // aman walaupun null
 
                 _loginState.update {
                     it.copy(

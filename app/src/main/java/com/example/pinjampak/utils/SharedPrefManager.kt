@@ -30,4 +30,12 @@ class SharedPrefManager @Inject constructor(private val sharedPrefHelper: Shared
     fun saveUsername(username: String) {
         sharedPrefHelper.saveUsername(username)
     }
+
+    fun saveCustomerId(id: String) {
+        sharedPrefHelper.saveCustomerId(id)
+    }
+
+    fun getCustomerId(): String? {
+        return sharedPrefHelper.getCustomerId()
+    }
 }

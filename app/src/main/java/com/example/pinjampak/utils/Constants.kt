@@ -5,4 +5,6 @@ object Constants {
     const val DESTINATION_LOGIN = "login"
     const val DESTINATION_HOME = "home"
     const val DESTINATION_REGISTER = "register"
+    const val DESTINATION_REGISTER_CUSTOMER = "register-customer"
+    const val CAMERA_CAPTURE = "camera_capture"
 }

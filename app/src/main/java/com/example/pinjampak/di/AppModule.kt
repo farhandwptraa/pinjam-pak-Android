@@ -6,8 +6,10 @@ import com.example.pinjampak.data.remote.api.ApiService
 import com.example.pinjampak.data.remote.api.AuthApi
 import com.example.pinjampak.data.repository.AuthRepositoryImpl
 import com.example.pinjampak.data.repository.ProfileRepositoryImpl
+import com.example.pinjampak.data.repository.RegisterCustomerRepositoryImpl
 import com.example.pinjampak.domain.repository.AuthRepository
 import com.example.pinjampak.domain.repository.ProfileRepository
+import com.example.pinjampak.domain.repository.RegisterCustomerRepository
 import com.example.pinjampak.utils.Constants.BASE_URL
 import com.example.pinjampak.utils.SharedPrefHelper
 import com.example.pinjampak.utils.SharedPrefManager
@@ -60,5 +62,15 @@ object AppModule {
             .build()
 
         return retrofit.create(ApiService::class.java)
+    }
+
+    // Menambahkan penyediaan RegisterCustomerRepository
+    @Provides
+    @Singleton
+    fun provideRegisterCustomerRepository(
+        apiService: ApiService,
+        sharedPrefManager: SharedPrefManager
+    ): RegisterCustomerRepository {
+        return RegisterCustomerRepositoryImpl(apiService)
     }
 }

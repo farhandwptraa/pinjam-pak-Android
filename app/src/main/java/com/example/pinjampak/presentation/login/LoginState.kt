@@ -7,5 +7,6 @@ data class LoginState(
     val error: String = "",
     val token: String? = null,
     val roleId: String? = null,
-    val role: String? = null
+    val role: String? = null,
+    val customerId: String? = null
 )

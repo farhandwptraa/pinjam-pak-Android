@@ -25,4 +25,12 @@ class SharedPrefHelper(context: Context) {
     }
 
     fun getUsername(): String? = pref.getString("username", null)
+
+    fun saveCustomerId(customerId: String) {
+        pref.edit().putString("customerId", customerId).apply()
+    }
+
+    fun getCustomerId(): String? {
+        return pref.getString("customerId", null)
+    }
 }

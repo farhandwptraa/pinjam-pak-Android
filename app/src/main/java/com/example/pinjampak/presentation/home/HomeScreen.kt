@@ -1,4 +1,3 @@
-// HomeScreen.kt
 package com.example.pinjampak.presentation.home
 
 import androidx.compose.foundation.layout.padding
@@ -9,10 +8,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.example.pinjampak.presentation.profile.ProfileScreen
-import com.example.pinjampak.presentation.home.components.HomeContent
 
 @Composable
 fun HomeScreen(navController: NavController) {
@@ -31,7 +28,7 @@ fun HomeScreen(navController: NavController) {
                             )
                         },
                         label = { Text(screen.replaceFirstChar { it.uppercase() }) },
-                        selected = bottomNavController.currentDestination?.route == screen,
+                        selected = bottomNavController.currentBackStackEntry?.destination?.route == screen,
                         onClick = {
                             bottomNavController.navigate(screen) {
                                 popUpTo(bottomNavController.graph.startDestinationId) { saveState = true }
@@ -49,8 +46,8 @@ fun HomeScreen(navController: NavController) {
             startDestination = "home",
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("home") { HomeContent() }
-            composable("profile") { ProfileScreen(navController) } // ← gunakan NavController utama di sini
+            composable("home") { HomeContent(navController) }
+            composable("profile") { ProfileScreen(navController) }
         }
     }
 }

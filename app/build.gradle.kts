@@ -84,4 +84,10 @@ dependencies {
     // Retrofit Moshi Converter
     implementation ("com.squareup.retrofit2:converter-moshi:2.9.0")
     implementation("org.jetbrains.kotlin:kotlin-metadata-jvm:2.1.20")
+    implementation("io.coil-kt:coil-compose:2.5.0")
+    // CameraX core libraries
+    implementation("androidx.camera:camera-camera2:1.3.0")
+    implementation("androidx.camera:camera-lifecycle:1.3.0")
+    implementation("androidx.camera:camera-view:1.3.0")
+    implementation("androidx.camera:camera-extensions:1.3.0")
 }
