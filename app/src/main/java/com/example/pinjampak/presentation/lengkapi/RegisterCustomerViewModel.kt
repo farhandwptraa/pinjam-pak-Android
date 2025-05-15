@@ -55,6 +55,10 @@ class RegisterCustomerViewModel @Inject constructor(
             result
                 .onSuccess {
                     Log.d("RegisterVM", "✅ Registrasi berhasil")
+
+                    // 👉 Simpan customerId (misal NIK atau ID dari request)
+                    sharedPrefManager.saveCustomerId(request.nik) // atau dari response jika ada ID-nya
+
                     _eventFlow.emit(UiEvent.Success("Registrasi berhasil"))
                 }
                 .onFailure {

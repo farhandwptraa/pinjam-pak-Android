@@ -71,6 +71,6 @@ object AppModule {
         apiService: ApiService,
         sharedPrefManager: SharedPrefManager
     ): RegisterCustomerRepository {
-        return RegisterCustomerRepositoryImpl(apiService)
+        return RegisterCustomerRepositoryImpl(apiService, sharedPrefManager)
     }
 }

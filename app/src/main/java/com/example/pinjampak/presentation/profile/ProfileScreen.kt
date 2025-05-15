@@ -102,7 +102,16 @@ fun ProfileScreen(
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
-
+            Button(
+                onClick = {
+                    navController.navigate(Constants.CHANGE_PASSWORD)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            ) {
+                Text("Ganti Password")
+            }
             Button(
                 onClick = {
                     viewModel.logout()

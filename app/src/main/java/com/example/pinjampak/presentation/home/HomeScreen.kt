@@ -46,7 +46,9 @@ fun HomeScreen(navController: NavController) {
             startDestination = "home",
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("home") { HomeContent(navController) }
+            composable("home") {
+                HomeContent(navController = navController) // cukup ini
+            }
             composable("profile") { ProfileScreen(navController) }
         }
     }

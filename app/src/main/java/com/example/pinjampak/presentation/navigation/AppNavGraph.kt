@@ -11,6 +11,7 @@ import com.example.pinjampak.presentation.home.HomeScreen
 import com.example.pinjampak.presentation.register.RegisterScreen
 import com.example.pinjampak.presentation.lengkapi.RegisterCustomerScreen
 import com.example.pinjampak.presentation.lengkapi.RegisterCustomerViewModel
+import com.example.pinjampak.presentation.password.ChangePasswordScreen
 import com.example.pinjampak.utils.Constants
 
 @Composable
@@ -38,6 +39,10 @@ fun AppNavGraph(navController: NavHostController) {
 
         composable(Constants.CAMERA_CAPTURE) {
             CameraCaptureScreen(navController = navController)
+        }
+
+        composable(Constants.CHANGE_PASSWORD) {
+            ChangePasswordScreen(navController = navController)
         }
     }
 }

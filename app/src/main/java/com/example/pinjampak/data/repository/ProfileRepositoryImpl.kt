@@ -5,6 +5,7 @@ import com.example.pinjampak.data.local.dao.ProfileDao
 import com.example.pinjampak.data.local.entity.CustomerProfileEntity
 import com.example.pinjampak.data.local.entity.UserProfileEntity
 import com.example.pinjampak.data.remote.api.ApiService
+import com.example.pinjampak.data.remote.dto.ChangePasswordRequest
 import com.example.pinjampak.domain.repository.ProfileRepository
 import com.example.pinjampak.utils.SharedPrefManager
 import javax.inject.Inject
@@ -73,5 +74,13 @@ class ProfileRepositoryImpl @Inject constructor(
 
     override suspend fun getCachedCustomerProfile(username: String): CustomerProfileEntity? {
         return profileDao.getCustomerProfile(username)
+    }
+
+    override suspend fun changePassword(oldPassword: String, newPassword: String) {
+        val token = sharedPrefManager.getToken()
+        apiService.changePassword(
+            token = "Bearer $token",
+            body = ChangePasswordRequest(oldPassword, newPassword)
+        )
     }
 }

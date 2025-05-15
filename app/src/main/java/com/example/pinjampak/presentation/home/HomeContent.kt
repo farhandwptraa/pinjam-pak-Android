@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.pinjampak.utils.Constants
 
 @Composable
@@ -16,6 +17,22 @@ fun HomeContent(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val isCustomerDataComplete by viewModel.isCustomerDataComplete.collectAsState(initial = false)
+
+    // ⛳ GANTI: ambil savedStateHandle dari navController utama
+    val refreshState = navController.currentBackStackEntry
+        ?.savedStateHandle
+        ?.getStateFlow("refreshHome", false)
+        ?.collectAsState()
+
+    // 🔁 Trigger update jika refreshState bernilai true
+    LaunchedEffect(refreshState?.value) {
+        if (refreshState?.value == true) {
+            viewModel.updateCustomerDataStatus()
+            navController.currentBackStackEntry
+                ?.savedStateHandle
+                ?.set("refreshHome", false)
+        }
+    }
 
     Box(
         modifier = Modifier

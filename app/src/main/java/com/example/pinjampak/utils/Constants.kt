@@ -7,4 +7,5 @@ object Constants {
     const val DESTINATION_REGISTER = "register"
     const val DESTINATION_REGISTER_CUSTOMER = "register-customer"
     const val CAMERA_CAPTURE = "camera_capture"
+    const val CHANGE_PASSWORD = "change_password"
 }

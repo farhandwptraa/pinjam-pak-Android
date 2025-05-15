@@ -8,4 +8,5 @@ interface ProfileRepository {
     suspend fun fetchAndCacheCustomerProfile(): CustomerProfileEntity?
     suspend fun getCachedUserProfile(username: String): UserProfileEntity?
     suspend fun getCachedCustomerProfile(username: String): CustomerProfileEntity?
+    suspend fun changePassword(oldPassword: String, newPassword: String)
 }

@@ -53,15 +53,21 @@ fun RegisterCustomerScreen(
         }
     }
 
-    LaunchedEffect(true) {
+    LaunchedEffect(Unit) {
         viewModel.eventFlow.collect { event ->
             when (event) {
-                is RegisterCustomerViewModel.UiEvent.ShowError ->
-                    snackbarHostState.showSnackbar(event.message)
-
                 is RegisterCustomerViewModel.UiEvent.Success -> {
+                    // ✅ Sinyal refresh
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("refreshHome", true)
+
                     snackbarHostState.showSnackbar(event.message)
                     navController.popBackStack()
+                }
+
+                is RegisterCustomerViewModel.UiEvent.ShowError -> {
+                    snackbarHostState.showSnackbar(event.message)
                 }
             }
         }
