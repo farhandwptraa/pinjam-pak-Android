@@ -8,4 +8,6 @@ import com.example.pinjampak.data.remote.dto.RegisterResponse
 interface AuthRepository {
     suspend fun login(request: LoginRequest): LoginResponse
     suspend fun register(request: RegisterRequest): Result<RegisterResponse>
+    suspend fun forgotPassword(email: String)
+    suspend fun resetPassword(token: String, newPassword: String)
 }

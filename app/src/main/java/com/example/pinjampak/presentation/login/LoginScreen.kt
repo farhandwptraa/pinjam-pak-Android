@@ -118,6 +118,19 @@ fun LoginScreen(
                 }
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Lupa kata sandi? ") // dengan spasi di akhir
+                TextButton(onClick = { navController.navigate("forgot_password") }) {
+                    Text("Klik di sini")
+                }
+            }
+
             LaunchedEffect(state.isLoggedIn) {
                 if (state.isLoggedIn) {
                     navController.navigate(Constants.DESTINATION_HOME) {

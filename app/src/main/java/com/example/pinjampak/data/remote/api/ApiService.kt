@@ -2,6 +2,8 @@ package com.example.pinjampak.data.remote.api
 
 import com.example.pinjampak.data.remote.dto.ChangePasswordRequest
 import com.example.pinjampak.data.remote.dto.CustomerResponse
+import com.example.pinjampak.data.remote.dto.ForgotPasswordRequest
+import com.example.pinjampak.data.remote.dto.ResetPasswordRequest
 import com.example.pinjampak.data.remote.dto.UserResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -37,5 +39,17 @@ interface ApiService {
     suspend fun changePassword(
         @Header("Authorization") token: String,
         @Body body: ChangePasswordRequest
+    )
+
+    // Forgot Password
+    @POST("auth/forgot-password")
+    suspend fun forgotPassword(
+        @Body request: ForgotPasswordRequest
+    )
+
+    // Reset Password
+    @POST("auth/reset-password")
+    suspend fun resetPassword(
+        @Body request: ResetPasswordRequest
     )
 }
