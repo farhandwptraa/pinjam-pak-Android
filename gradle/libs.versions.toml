@@ -33,6 +33,7 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version = "2.7.7" }
 firebaseMessaging = { group = "com.google.firebase", name = "firebase-messaging" }
 firebaseAnalytics = { group = "com.google.firebase", name = "firebase-analytics" }
+androidx-ui-text = { group = "androidx.compose.ui", name = "ui-text" }
 
 
 [plugins]

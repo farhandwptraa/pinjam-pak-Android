@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pinjampak.data.remote.dto.LoginRequest
 import com.example.pinjampak.domain.repository.AuthRepository
+import com.example.pinjampak.domain.repository.ProfileRepository
 import com.example.pinjampak.utils.SharedPrefManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val sharedPrefManager: SharedPrefManager
+    private val sharedPrefManager: SharedPrefManager,
+    private val profileRepository: ProfileRepository
 ) : ViewModel() {
 
     private val _loginState = MutableStateFlow(LoginState())
@@ -39,10 +41,13 @@ class LoginViewModel @Inject constructor(
                 )
                 val response = authRepository.login(request)
 
-                // ✅ Simpan token, username, role_id, dan customerId
                 sharedPrefManager.saveToken(response.token)
                 sharedPrefManager.saveUsername(response.username)
-                sharedPrefManager.saveCustomerId(response.customerId ?: "") // aman walaupun null
+                sharedPrefManager.saveCustomerId(response.customerId ?: "")
+
+                // ✅ Sinkronisasi profil setelah login
+                profileRepository.fetchAndCacheUserProfile()
+                profileRepository.fetchAndCacheCustomerProfile()
 
                 _loginState.update {
                     it.copy(
