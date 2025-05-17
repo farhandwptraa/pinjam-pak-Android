@@ -1,8 +1,8 @@
 package com.example.pinjampak.presentation.home
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pinjampak.domain.repository.ProfileRepository
@@ -10,6 +10,7 @@ import com.example.pinjampak.utils.SharedPrefManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,47 +21,47 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _isCustomerDataComplete = MutableStateFlow(false)
-    val isCustomerDataComplete: StateFlow<Boolean> = _isCustomerDataComplete
+    val isCustomerDataComplete: StateFlow<Boolean> = _isCustomerDataComplete.asStateFlow()
 
-    var plafonMax by mutableStateOf(0.0)
-        private set
+    private val _plafonMax = MutableStateFlow(0.0)
+    val plafonMax: StateFlow<Double> = _plafonMax.asStateFlow()
 
-    var plafonSisa by mutableStateOf(0.0)
-        private set
+    private val _plafonSisa = MutableStateFlow(0.0)
+    val plafonSisa: StateFlow<Double> = _plafonSisa.asStateFlow()
 
-    var jumlahPinjaman by mutableStateOf("")
-    var tenor by mutableStateOf(6)
+    var jumlahPinjaman: String by mutableStateOf("")
+    var tenor: Int by mutableStateOf(6)
 
     init {
-        checkCustomerDataStatus()
+        refreshCustomerStatus()
         loadPlafonData()
     }
 
-    private fun checkCustomerDataStatus() {
+    private fun refreshCustomerStatus() {
         _isCustomerDataComplete.value = sharedPrefManager.getCustomerId()?.isNotEmpty() == true
     }
 
-    fun updateCustomerDataStatus() {
-        checkCustomerDataStatus()
-    }
+    fun updateCustomerDataStatus() = refreshCustomerStatus()
 
-    fun loadPlafonData() {
+    private fun loadPlafonData() {
         viewModelScope.launch {
-            val username = sharedPrefManager.getUsername()
-            if (!username.isNullOrEmpty()) {
-                repository.getCachedCustomerProfile(username)?.let { data ->
-                    plafonMax = data.plafond
-                    plafonSisa = data.sisaPlafond
+            sharedPrefManager.getUsername()?.let { username ->
+                repository.getCachedCustomerProfile(username)?.let { profile ->
+                    _plafonMax.value = profile.plafond
+                    _plafonSisa.value = profile.sisaPlafond
                 }
             }
         }
     }
 
-    fun getSimulasi(): Pair<Double, Double> {
-        val jumlah = jumlahPinjaman.toDoubleOrNull() ?: 0.0
-        val bunga = 0.02
-        val totalBayar = jumlah * (1 + bunga * tenor)
+    fun calculateSimulasi(jumlah: Double, tenor: Int): Pair<Double, Double> {
+        val bungaRate = 0.02
+        val totalBayar = jumlah * (1 + bungaRate * tenor)
         val cicilan = if (tenor > 0) totalBayar / tenor else 0.0
         return totalBayar to cicilan
+    }
+
+    fun submitPengajuan() {
+        // TODO: implementasi pengajuan via repository dan handle hasilnya
     }
 }

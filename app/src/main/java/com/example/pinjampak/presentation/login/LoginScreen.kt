@@ -20,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.pinjampak.utils.Constants
+import androidx.compose.ui.tooling.preview.Preview
+
 
 @Composable
 fun LoginScreen(
