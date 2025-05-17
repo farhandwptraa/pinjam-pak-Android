@@ -9,4 +9,5 @@ interface ProfileRepository {
     suspend fun getCachedUserProfile(username: String): UserProfileEntity?
     suspend fun getCachedCustomerProfile(username: String): CustomerProfileEntity?
     suspend fun changePassword(oldPassword: String, newPassword: String)
+    suspend fun ajukanPinjaman(amount: Int, tenor: Int): Boolean
 }

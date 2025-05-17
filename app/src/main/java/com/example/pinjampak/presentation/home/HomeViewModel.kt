@@ -1,8 +1,8 @@
 package com.example.pinjampak.presentation.home
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pinjampak.domain.repository.ProfileRepository
@@ -16,21 +16,30 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: ProfileRepository,
+    private val profileRepository: ProfileRepository,
     private val sharedPrefManager: SharedPrefManager
 ) : ViewModel() {
 
+    // Customer status
     private val _isCustomerDataComplete = MutableStateFlow(false)
     val isCustomerDataComplete: StateFlow<Boolean> = _isCustomerDataComplete.asStateFlow()
 
+    // Plafon data
     private val _plafonMax = MutableStateFlow(0.0)
     val plafonMax: StateFlow<Double> = _plafonMax.asStateFlow()
 
     private val _plafonSisa = MutableStateFlow(0.0)
     val plafonSisa: StateFlow<Double> = _plafonSisa.asStateFlow()
 
+    // Input fields
     var jumlahPinjaman: String by mutableStateOf("")
     var tenor: Int by mutableStateOf(6)
+
+    // Submission state
+    var isLoading by mutableStateOf(false)
+        private set
+    var submitResult by mutableStateOf<String?>(null)
+        private set
 
     init {
         refreshCustomerStatus()
@@ -38,15 +47,16 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun refreshCustomerStatus() {
-        _isCustomerDataComplete.value = sharedPrefManager.getCustomerId()?.isNotEmpty() == true
+        _isCustomerDataComplete.value = sharedPrefManager
+            .getCustomerId()
+            ?.isNotEmpty() == true
     }
-
     fun updateCustomerDataStatus() = refreshCustomerStatus()
 
     private fun loadPlafonData() {
         viewModelScope.launch {
             sharedPrefManager.getUsername()?.let { username ->
-                repository.getCachedCustomerProfile(username)?.let { profile ->
+                profileRepository.getCachedCustomerProfile(username)?.let { profile ->
                     _plafonMax.value = profile.plafond
                     _plafonSisa.value = profile.sisaPlafond
                 }
@@ -62,6 +72,21 @@ class HomeViewModel @Inject constructor(
     }
 
     fun submitPengajuan() {
-        // TODO: implementasi pengajuan via repository dan handle hasilnya
+        val amount = jumlahPinjaman.toIntOrNull() ?: run {
+            submitResult = "Jumlah tidak valid"
+            return
+        }
+        if (amount <= 0 || tenor <= 0) {
+            submitResult = "Jumlah dan tenor harus lebih dari 0"
+            return
+        }
+
+        viewModelScope.launch {
+            isLoading = true
+            submitResult = null
+            val success = profileRepository.ajukanPinjaman(amount, tenor)
+            isLoading = false
+            submitResult = if (success) "Pengajuan berhasil" else "Pengajuan gagal"
+        }
     }
 }

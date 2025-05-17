@@ -14,9 +14,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.pinjampak.utils.Constants
 import com.example.pinjampak.utils.LoanLevel
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.Text
-import androidx.compose.material3.CenterAlignedTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,19 +21,20 @@ fun HomeContent(
     navController: NavController,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    // State
+    // Collect state
     val isDataComplete by viewModel.isCustomerDataComplete.collectAsState()
     val plafonMax by viewModel.plafonMax.collectAsState()
     val plafonSisa by viewModel.plafonSisa.collectAsState()
     var jumlahPinjaman by remember { mutableStateOf(viewModel.jumlahPinjaman) }
     var tenor by remember { mutableStateOf(viewModel.tenor) }
+    val isLoading by remember { derivedStateOf { viewModel.isLoading } }
+    val submitResult by remember { derivedStateOf { viewModel.submitResult } }
 
-    // Refresh listener
+    // Refresh trigger
     val refreshFlow = navController.currentBackStackEntry
         ?.savedStateHandle
         ?.getStateFlow("refreshHome", false)
         ?.collectAsState()
-
     LaunchedEffect(refreshFlow?.value) {
         if (refreshFlow?.value == true) {
             viewModel.updateCustomerDataStatus()
@@ -46,14 +44,15 @@ fun HomeContent(
         }
     }
 
-    // Simulation calculation
+    // Simulation
     val (totalBayar, cicilan) = remember(jumlahPinjaman, tenor) {
         viewModel.calculateSimulasi(jumlahPinjaman.toDoubleOrNull() ?: 0.0, tenor)
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Home") }) },
-        bottomBar = { /* bottom nav moved to parent */ }
+        topBar = {
+            CenterAlignedTopAppBar(title = { Text("Home") })
+        }
     ) { padding ->
         Box(
             modifier = Modifier
@@ -82,9 +81,9 @@ fun HomeContent(
 
                 OutlinedTextField(
                     value = jumlahPinjaman,
-                    onValueChange = { newValue ->
-                        jumlahPinjaman = newValue
-                        viewModel.jumlahPinjaman = newValue
+                    onValueChange = { new ->
+                        jumlahPinjaman = new
+                        viewModel.jumlahPinjaman = new
                     },
                     label = { Text("Jumlah Pinjaman") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -138,15 +137,26 @@ fun HomeContent(
 
                 Button(
                     onClick = { viewModel.submitPengajuan() },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !isLoading
                 ) {
-                    Text("Ajukan Pinjaman")
+                    Text(if (isLoading) "Mengajukan..." else "Ajukan Pinjaman")
+                }
+
+                submitResult?.let { msg ->
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = msg,
+                        color = if (msg.contains("berhasil", ignoreCase = true)) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.error
+                    )
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropdownMenuTenor(selected: Int, onSelect: (Int) -> Unit) {
     var expanded by remember { mutableStateOf(false) }

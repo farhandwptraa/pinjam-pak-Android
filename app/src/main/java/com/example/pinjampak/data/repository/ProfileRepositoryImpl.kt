@@ -6,6 +6,7 @@ import com.example.pinjampak.data.local.entity.CustomerProfileEntity
 import com.example.pinjampak.data.local.entity.UserProfileEntity
 import com.example.pinjampak.data.remote.api.ApiService
 import com.example.pinjampak.data.remote.dto.ChangePasswordRequest
+import com.example.pinjampak.data.remote.dto.PengajuanRequest
 import com.example.pinjampak.domain.repository.ProfileRepository
 import com.example.pinjampak.utils.SharedPrefManager
 import javax.inject.Inject
@@ -82,5 +83,14 @@ class ProfileRepositoryImpl @Inject constructor(
             token = "Bearer $token",
             body = ChangePasswordRequest(oldPassword, newPassword)
         )
+    }
+
+    override suspend fun ajukanPinjaman(amount: Int, tenor: Int): Boolean {
+        val token = sharedPrefManager.getToken() ?: return false
+        val response = apiService.ajukanPinjaman(
+            PengajuanRequest(amount, tenor),
+            "Bearer $token"
+        )
+        return response.isSuccessful
     }
 }
