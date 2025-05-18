@@ -6,6 +6,7 @@ import com.example.pinjampak.data.local.entity.CustomerProfileEntity
 import com.example.pinjampak.data.local.entity.UserProfileEntity
 import com.example.pinjampak.data.remote.api.ApiService
 import com.example.pinjampak.data.remote.dto.ChangePasswordRequest
+import com.example.pinjampak.data.remote.dto.LogoutRequest
 import com.example.pinjampak.data.remote.dto.PengajuanRequest
 import com.example.pinjampak.domain.repository.ProfileRepository
 import com.example.pinjampak.utils.SharedPrefManager
@@ -92,5 +93,26 @@ class ProfileRepositoryImpl @Inject constructor(
             "Bearer $token"
         )
         return response.isSuccessful
+    }
+
+    override suspend fun logout(token: String, fcmToken: String?) {
+        try {
+            Log.d("ProfileRepository", "Mengirim logout ke server...")
+            Log.d("ProfileRepository", "Token: $token")
+            Log.d("ProfileRepository", "FCM Token: $fcmToken")
+
+            val request = LogoutRequest(fcmToken = fcmToken)
+            val authHeader = "Bearer $token"
+
+            val response = apiService.logout(authHeader, request)
+
+            if (response.isSuccessful) {
+                Log.d("ProfileRepository", "Logout berhasil di server.")
+            } else {
+                Log.e("ProfileRepository", "Logout gagal: ${response.code()} ${response.message()}")
+            }
+        } catch (e: Exception) {
+            Log.e("ProfileRepository", "Exception saat logout: ${e.message}")
+        }
     }
 }

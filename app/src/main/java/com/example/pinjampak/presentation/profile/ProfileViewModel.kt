@@ -68,8 +68,21 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun logout() {
-        Log.d("ProfileViewModel", "Logging out user...")
-        sharedPrefManager.clear()
-        Log.d("ProfileViewModel", "User logged out and session cleared.")
+        viewModelScope.launch {
+            try {
+                val token = sharedPrefManager.getToken()
+                val fcmToken = sharedPrefManager.getFcmToken()
+
+                if (!token.isNullOrBlank()) {
+                    repository.logout(token, fcmToken)
+                    Log.d("ProfileViewModel", "Logout berhasil ke server.")
+                }
+            } catch (e: Exception) {
+                Log.e("ProfileViewModel", "Logout error: ${e.message}")
+            }
+
+            sharedPrefManager.clear()
+            Log.d("ProfileViewModel", "User logged out and session cleared.")
+        }
     }
 }

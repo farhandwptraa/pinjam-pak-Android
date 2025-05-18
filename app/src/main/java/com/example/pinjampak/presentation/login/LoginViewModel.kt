@@ -43,13 +43,16 @@ class LoginViewModel @Inject constructor(
                             val request = LoginRequest(
                                 usernameOrEmail = _loginState.value.username,
                                 password = _loginState.value.password,
-                                fcmToken = fcmToken // ⬅️ masukkan ke LoginRequest
+                                fcmToken = fcmToken // Masukkan ke request juga kalau backend butuh
                             )
                             val response = authRepository.login(request)
 
                             sharedPrefManager.saveToken(response.token)
                             sharedPrefManager.saveUsername(response.username)
                             sharedPrefManager.saveCustomerId(response.customerId ?: "")
+
+                            // *** Simpan FCM token juga supaya bisa dipakai nanti ***
+                            sharedPrefManager.saveFcmToken(fcmToken)
 
                             // Optional: fetch profile
                             profileRepository.fetchAndCacheUserProfile()

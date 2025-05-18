@@ -33,4 +33,12 @@ class SharedPrefHelper(context: Context) {
     fun getCustomerId(): String? {
         return pref.getString("customerId", null)
     }
+
+    fun saveFcmToken(token: String) {
+        pref.edit().putString("fcm_token", token).apply()
+    }
+
+    fun getFcmToken(): String? {
+        return pref.getString("fcm_token", null)
+    }
 }

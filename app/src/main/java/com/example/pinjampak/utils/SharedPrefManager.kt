@@ -38,4 +38,12 @@ class SharedPrefManager @Inject constructor(private val sharedPrefHelper: Shared
     fun getCustomerId(): String? {
         return sharedPrefHelper.getCustomerId()
     }
+
+    fun saveFcmToken(token: String) {
+        sharedPrefHelper.saveFcmToken(token)
+    }
+
+    fun getFcmToken(): String? {
+        return sharedPrefHelper.getFcmToken()
+    }
 }
