@@ -1,6 +1,7 @@
 package com.example.pinjampak.data.remote.api
 
 import com.example.pinjampak.data.remote.dto.ChangePasswordRequest
+import com.example.pinjampak.data.remote.dto.FcmTokenRequest
 import com.example.pinjampak.data.remote.dto.LoginRequest
 import com.example.pinjampak.data.remote.dto.LoginResponse
 import com.example.pinjampak.data.remote.dto.RegisterRequest
@@ -15,4 +16,10 @@ interface AuthApi {
 
     @POST("api/users/register")
     suspend fun register(@Body request: RegisterRequest): RegisterResponse
+
+    @POST("api/fcm/token")
+    suspend fun sendFcmToken(
+        @Header("Authorization") token: String,
+        @Body request: FcmTokenRequest
+    )
 }

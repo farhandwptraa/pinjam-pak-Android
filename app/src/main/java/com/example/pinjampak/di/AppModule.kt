@@ -28,7 +28,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAuthRepository(api: AuthApi, apiService: ApiService): AuthRepository = AuthRepositoryImpl(api, apiService)
+    fun provideAuthRepository(api: AuthApi, apiService: ApiService, sharedPrefManager: SharedPrefManager): AuthRepository = AuthRepositoryImpl(api, apiService, sharedPrefManager)
 
     @Provides
     @Singleton

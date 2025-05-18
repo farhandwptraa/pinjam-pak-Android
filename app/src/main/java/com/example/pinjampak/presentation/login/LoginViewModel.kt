@@ -7,6 +7,7 @@ import com.example.pinjampak.data.remote.dto.LoginRequest
 import com.example.pinjampak.domain.repository.AuthRepository
 import com.example.pinjampak.domain.repository.ProfileRepository
 import com.example.pinjampak.utils.SharedPrefManager
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,31 +36,35 @@ class LoginViewModel @Inject constructor(
     fun login() {
         viewModelScope.launch {
             try {
-                val request = LoginRequest(
-                    usernameOrEmail = _loginState.value.username,
-                    password = _loginState.value.password
-                )
-                val response = authRepository.login(request)
+                // Ambil FCM token terlebih dahulu
+                FirebaseMessaging.getInstance().token.addOnSuccessListener { fcmToken ->
+                    viewModelScope.launch {
+                        try {
+                            val request = LoginRequest(
+                                usernameOrEmail = _loginState.value.username,
+                                password = _loginState.value.password,
+                                fcmToken = fcmToken // ⬅️ masukkan ke LoginRequest
+                            )
+                            val response = authRepository.login(request)
 
-                sharedPrefManager.saveToken(response.token)
-                sharedPrefManager.saveUsername(response.username)
-                sharedPrefManager.saveCustomerId(response.customerId ?: "")
+                            sharedPrefManager.saveToken(response.token)
+                            sharedPrefManager.saveUsername(response.username)
+                            sharedPrefManager.saveCustomerId(response.customerId ?: "")
 
-                // ✅ Sinkronisasi profil setelah login
-                profileRepository.fetchAndCacheUserProfile()
-                profileRepository.fetchAndCacheCustomerProfile()
+                            // Optional: fetch profile
+                            profileRepository.fetchAndCacheUserProfile()
+                            profileRepository.fetchAndCacheCustomerProfile()
 
-                _loginState.update {
-                    it.copy(
-                        isLoggedIn = true,
-                        error = ""
-                    )
+                            _loginState.update { it.copy(isLoggedIn = true, error = "") }
+                        } catch (e: Exception) {
+                            _loginState.update { it.copy(error = e.message ?: "Login failed") }
+                        }
+                    }
+                }.addOnFailureListener {
+                    _loginState.update { it.copy(error = "Gagal mengambil FCM token") }
                 }
-
             } catch (e: Exception) {
-                _loginState.update {
-                    it.copy(error = e.message ?: "Login failed")
-                }
+                _loginState.update { it.copy(error = e.message ?: "Login failed") }
             }
         }
     }
