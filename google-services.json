@@ -12,7 +12,12 @@
           "package_name": "com.example.pinjampak"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "29525165356-5ppm1frk6aldubkfum83ks1ok9knkoe2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBPX8xC-xnLPNRNlEWhSvfPD86w8tdzwC8"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "29525165356-5ppm1frk6aldubkfum83ks1ok9knkoe2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

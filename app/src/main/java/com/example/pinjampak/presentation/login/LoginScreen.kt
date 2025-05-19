@@ -1,5 +1,8 @@
 package com.example.pinjampak.presentation.login
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
@@ -9,19 +12,19 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.Alignment
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.pinjampak.R
 import com.example.pinjampak.utils.Constants
-import androidx.compose.ui.tooling.preview.Preview
-
 
 @Composable
 fun LoginScreen(
@@ -31,19 +34,27 @@ fun LoginScreen(
     val state by viewModel.loginState.collectAsState()
     var showPassword by remember { mutableStateOf(false) }
 
+    // Launcher untuk Google Sign-In
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result: ActivityResult ->
+        viewModel.onGoogleSignInResult(result)
+    }
+
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Column(modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth()
-            .widthIn(max = 400.dp) // Optional: Set max width for the form
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+                .widthIn(max = 400.dp)
         ) {
             Text(text = "Login", style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Username Label and Input Field
+            // Username Field
             Text(text = "Username or Email", style = MaterialTheme.typography.bodyMedium)
             Spacer(modifier = Modifier.height(8.dp))
             BasicTextField(
@@ -62,10 +73,9 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Password Label and Input Field with show/hide feature
+            // Password Field
             Text(text = "Password", style = MaterialTheme.typography.bodyMedium)
             Spacer(modifier = Modifier.height(8.dp))
-
             Box(modifier = Modifier.fillMaxWidth()) {
                 BasicTextField(
                     value = state.password,
@@ -83,7 +93,7 @@ fun LoginScreen(
                 )
                 IconButton(
                     onClick = { showPassword = !showPassword },
-                    modifier = Modifier.align(Alignment.CenterEnd) // Align icon to the end
+                    modifier = Modifier.align(Alignment.CenterEnd)
                 ) {
                     Icon(
                         imageVector = if (showPassword) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
@@ -102,13 +112,33 @@ fun LoginScreen(
                 Text("Login")
             }
 
-            // Error message
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Google Sign-In Button
+            Button(
+                onClick = { launcher.launch(viewModel.getGoogleSignInIntent()) },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                    contentDescription = null
+                )
+                Spacer(Modifier.width(8.dp))
+                Text("Login dengan Google", color = Color.Black)
+            }
+
+            // Error Message
             if (state.error.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(12.dp))
                 Text(text = state.error, color = Color.Red)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Register Navigation
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
@@ -120,19 +150,19 @@ fun LoginScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
+            // Forgot Password Navigation
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Lupa kata sandi? ") // dengan spasi di akhir
+                Text("Lupa kata sandi? ")
                 TextButton(onClick = { navController.navigate("forgot_password") }) {
                     Text("Klik di sini")
                 }
             }
 
+            // Auto Navigate if login success
             LaunchedEffect(state.isLoggedIn) {
                 if (state.isLoggedIn) {
                     navController.navigate(Constants.DESTINATION_HOME) {

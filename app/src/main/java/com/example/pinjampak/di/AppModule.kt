@@ -1,6 +1,8 @@
 package com.example.pinjampak.di
 
 import android.content.Context
+import android.util.Log
+import com.example.pinjampak.R
 import com.example.pinjampak.data.local.dao.ProfileDao
 import com.example.pinjampak.data.remote.api.ApiService
 import com.example.pinjampak.data.remote.api.AuthApi
@@ -13,6 +15,9 @@ import com.example.pinjampak.domain.repository.RegisterCustomerRepository
 import com.example.pinjampak.utils.Constants.BASE_URL
 import com.example.pinjampak.utils.SharedPrefHelper
 import com.example.pinjampak.utils.SharedPrefManager
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -72,5 +77,19 @@ object AppModule {
         sharedPrefManager: SharedPrefManager
     ): RegisterCustomerRepository {
         return RegisterCustomerRepositoryImpl(apiService, sharedPrefManager)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGoogleSignInClient(
+        @ApplicationContext ctx: Context
+    ): GoogleSignInClient {
+        val clientId = ctx.getString(R.string.server_client_id)
+        Log.d("AppModule", "Google Sign-In Client ID: $clientId")
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(clientId)
+            .requestEmail()
+            .build()
+        return GoogleSignIn.getClient(ctx, gso)
     }
 }

@@ -6,6 +6,7 @@ import com.example.pinjampak.data.remote.dto.FcmTokenRequest
 import com.example.pinjampak.data.remote.dto.ForgotPasswordRequest
 import com.example.pinjampak.data.remote.dto.LoginRequest
 import com.example.pinjampak.data.remote.dto.LoginResponse
+import com.example.pinjampak.data.remote.dto.LoginWithGoogleRequest
 import com.example.pinjampak.data.remote.dto.RegisterRequest
 import com.example.pinjampak.data.remote.dto.RegisterResponse
 import com.example.pinjampak.data.remote.dto.ResetPasswordRequest
@@ -49,5 +50,9 @@ class AuthRepositoryImpl @Inject constructor(
             token = "Bearer $token",
             request = FcmTokenRequest(username = username.toString(), fcmToken = fcmToken)
         )
+    }
+
+    override suspend fun loginWithGoogle(request: LoginWithGoogleRequest): LoginResponse {
+        return authApi.loginWithGoogle(request)
     }
 }
