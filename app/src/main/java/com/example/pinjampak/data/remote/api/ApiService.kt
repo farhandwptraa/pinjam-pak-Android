@@ -5,6 +5,8 @@ import com.example.pinjampak.data.remote.dto.CustomerResponse
 import com.example.pinjampak.data.remote.dto.ForgotPasswordRequest
 import com.example.pinjampak.data.remote.dto.LogoutRequest
 import com.example.pinjampak.data.remote.dto.PengajuanRequest
+import com.example.pinjampak.data.remote.dto.PengajuanResponse
+import com.example.pinjampak.data.remote.dto.PinjamanResponse
 import com.example.pinjampak.data.remote.dto.ResetPasswordRequest
 import com.example.pinjampak.data.remote.dto.UserResponse
 import okhttp3.MultipartBody
@@ -66,4 +68,14 @@ interface ApiService {
         @Header("Authorization") authHeader: String,
         @Body request: LogoutRequest
     ): Response<Unit>
+
+    @GET("/api/history/pengajuan")
+    suspend fun getPengajuanHistory(
+        @Header("Authorization") token: String
+    ): List<PengajuanResponse>
+
+    @GET("/api/history/pinjaman")
+    suspend fun getPinjamanHistory(
+        @Header("Authorization") token: String
+    ): List<PinjamanResponse>
 }

@@ -2,6 +2,7 @@ package com.example.pinjampak.presentation.home
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -9,12 +10,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.compose.*
+import com.example.pinjampak.presentation.history.HistoryScreen
 import com.example.pinjampak.presentation.profile.ProfileScreen
 
 @Composable
 fun HomeScreen(navController: NavController) {
     val bottomNavController = rememberNavController()
-    val items = listOf("home", "profile")
+    val items = listOf("history", "home", "profile")
 
     Scaffold(
         bottomBar = {
@@ -23,7 +25,11 @@ fun HomeScreen(navController: NavController) {
                     NavigationBarItem(
                         icon = {
                             Icon(
-                                imageVector = if (screen == "home") Icons.Default.Home else Icons.Default.Person,
+                                imageVector = when (screen) {
+                                    "home" -> Icons.Default.Home
+                                    "profile" -> Icons.Default.Person
+                                    else -> Icons.Default.History // butuh import Icons.Default.History
+                                },
                                 contentDescription = null
                             )
                         },
@@ -49,7 +55,11 @@ fun HomeScreen(navController: NavController) {
             composable("home") {
                 HomeContent(navController = navController) // cukup ini
             }
-            composable("profile") { ProfileScreen(navController) }
+            composable("profile") { ProfileScreen(navController)
+            }
+            composable("history") {
+                HistoryScreen() // ✅ Tambahkan ini
+            }
         }
     }
 }

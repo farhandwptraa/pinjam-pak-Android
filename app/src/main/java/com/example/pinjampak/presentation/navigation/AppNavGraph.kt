@@ -17,6 +17,7 @@ import com.example.pinjampak.presentation.lengkapi.RegisterCustomerViewModel
 import com.example.pinjampak.presentation.password.ChangePasswordScreen
 import com.example.pinjampak.presentation.password.ForgotPasswordScreen
 import com.example.pinjampak.presentation.password.ResetPasswordScreen
+import com.example.pinjampak.presentation.history.HistoryScreen
 import com.example.pinjampak.utils.Constants
 
 @Composable
@@ -47,6 +48,8 @@ fun AppNavGraph(navController: NavHostController) {
         composable(Constants.FORGOT_PASSWORD) {
             ForgotPasswordScreen(navController = navController)
         }
+        composable(Constants.HISTORY) {
+            HistoryScreen() }
 
         // Deep Link untuk reset password
         composable(

@@ -9,4 +9,5 @@ object Constants {
     const val CAMERA_CAPTURE = "camera_capture"
     const val CHANGE_PASSWORD = "change_password"
     const val FORGOT_PASSWORD = "forgot_password"
+    const val HISTORY = "history"
 }
