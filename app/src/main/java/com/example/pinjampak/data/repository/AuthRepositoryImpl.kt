@@ -2,14 +2,7 @@ package com.example.pinjampak.data.repository
 
 import com.example.pinjampak.data.remote.api.ApiService
 import com.example.pinjampak.data.remote.api.AuthApi
-import com.example.pinjampak.data.remote.dto.FcmTokenRequest
-import com.example.pinjampak.data.remote.dto.ForgotPasswordRequest
-import com.example.pinjampak.data.remote.dto.LoginRequest
-import com.example.pinjampak.data.remote.dto.LoginResponse
-import com.example.pinjampak.data.remote.dto.LoginWithGoogleRequest
-import com.example.pinjampak.data.remote.dto.RegisterRequest
-import com.example.pinjampak.data.remote.dto.RegisterResponse
-import com.example.pinjampak.data.remote.dto.ResetPasswordRequest
+import com.example.pinjampak.data.remote.dto.*
 import com.example.pinjampak.domain.repository.AuthRepository
 import com.example.pinjampak.utils.SharedPrefManager
 import javax.inject.Inject
@@ -34,7 +27,8 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun forgotPassword(email: String) {
-        apiService.forgotPassword(ForgotPasswordRequest(email))
+        val request = ForgotPasswordRequest(email)
+        apiService.forgotPassword(request)
     }
 
     override suspend fun resetPassword(token: String, newPassword: String) {
@@ -44,15 +38,17 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun sendFcmTokenToBackend(fcmToken: String) {
         val token = sharedPrefManager.getToken()
-        val username = sharedPrefManager.getUsername()
+        val username = sharedPrefManager.getUsername().orEmpty()
 
-        authApi.sendFcmToken(
-            token = "Bearer $token",
-            request = FcmTokenRequest(username = username.toString(), fcmToken = fcmToken)
-        )
+        val request = FcmTokenRequest(username = username, fcmToken = fcmToken)
+        authApi.sendFcmToken(token = "Bearer $token", request = request)
     }
 
     override suspend fun loginWithGoogle(request: LoginWithGoogleRequest): LoginResponse {
         return authApi.loginWithGoogle(request)
+    }
+
+    override suspend fun verifyEmail(token: String): String {
+        return authApi.verifyEmail(token).toString()
     }
 }

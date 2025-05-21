@@ -27,7 +27,7 @@ class RegisterViewModel @Inject constructor(
                     username = username,
                     password = password,
                     email = email,
-                    nama_lengkap = namaLengkap
+                    namaLengkap = namaLengkap
                 )
 
                 val result = registerUseCase(request)

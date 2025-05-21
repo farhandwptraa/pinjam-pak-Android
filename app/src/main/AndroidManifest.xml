@@ -55,6 +55,16 @@
                     android:scheme="pinjampak"
                     android:host="reset-password" />
             </intent-filter>
+
+            <!-- ✅ Deep Link Email Verification -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="pinjampak"
+                    android:host="email-verification" />
+            </intent-filter>
         </activity>
     </application>
 

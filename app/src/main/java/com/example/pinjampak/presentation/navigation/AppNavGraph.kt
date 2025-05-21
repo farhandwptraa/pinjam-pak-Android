@@ -18,6 +18,7 @@ import com.example.pinjampak.presentation.password.ChangePasswordScreen
 import com.example.pinjampak.presentation.password.ForgotPasswordScreen
 import com.example.pinjampak.presentation.password.ResetPasswordScreen
 import com.example.pinjampak.presentation.history.HistoryScreen
+import com.example.pinjampak.presentation.register.VerifyEmailScreen
 import com.example.pinjampak.utils.Constants
 
 @Composable
@@ -50,7 +51,6 @@ fun AppNavGraph(navController: NavHostController) {
         }
         composable(Constants.HISTORY) {
             HistoryScreen() }
-
         // Deep Link untuk reset password
         composable(
             route = "reset_password/{token}",
@@ -63,6 +63,19 @@ fun AppNavGraph(navController: NavHostController) {
         ) { backStackEntry ->
             val token = backStackEntry.arguments?.getString("token") ?: ""
             ResetPasswordScreen(token = token, navController = navController)
+        }
+
+        composable(
+            route = "verifyEmail/{token}",
+            arguments = listOf(navArgument("token") { type = NavType.StringType }),
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = "pinjampak://email-verification?token={token}"
+                }
+            )
+        ) { backStackEntry ->
+            val token = backStackEntry.arguments?.getString("token") ?: ""
+            VerifyEmailScreen(token = token)
         }
     }
 }

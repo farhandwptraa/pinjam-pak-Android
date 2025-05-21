@@ -13,4 +13,5 @@ interface AuthRepository {
     suspend fun resetPassword(token: String, newPassword: String)
     suspend fun sendFcmTokenToBackend(fcmToken: String)
     suspend fun loginWithGoogle(request: LoginWithGoogleRequest): LoginResponse
+    suspend fun verifyEmail(token: String): String
 }

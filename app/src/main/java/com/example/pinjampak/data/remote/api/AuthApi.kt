@@ -1,15 +1,18 @@
 package com.example.pinjampak.data.remote.api
 
-import com.example.pinjampak.data.remote.dto.ChangePasswordRequest
 import com.example.pinjampak.data.remote.dto.FcmTokenRequest
 import com.example.pinjampak.data.remote.dto.LoginRequest
 import com.example.pinjampak.data.remote.dto.LoginResponse
 import com.example.pinjampak.data.remote.dto.LoginWithGoogleRequest
 import com.example.pinjampak.data.remote.dto.RegisterRequest
 import com.example.pinjampak.data.remote.dto.RegisterResponse
+import com.example.pinjampak.data.remote.dto.MessageResponse
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.GET
+import retrofit2.http.Query
 
 interface AuthApi {
     @POST("api/auth/login") // Ganti dengan endpoint login yang benar
@@ -28,4 +31,7 @@ interface AuthApi {
     suspend fun loginWithGoogle(
         @Body request: LoginWithGoogleRequest
     ): LoginResponse
+
+    @GET("users/verify")
+    suspend fun verifyEmail(@Query("token") token: String): Response<MessageResponse>
 }

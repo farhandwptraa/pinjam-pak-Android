@@ -27,10 +27,9 @@ class MainActivity : ComponentActivity() {
         // Ambil FCM token
         getFCMToken()
 
-        // Minta izin notifikasi untuk Android 13+
+        // Minta izin notifikasi
         requestNotificationPermission()
 
-        // Set konten Jetpack Compose
         setContent {
             val navController = rememberNavController()
             AppNavGraph(navController = navController)
