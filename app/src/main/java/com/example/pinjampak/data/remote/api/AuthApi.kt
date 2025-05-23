@@ -32,6 +32,6 @@ interface AuthApi {
         @Body request: LoginWithGoogleRequest
     ): LoginResponse
 
-    @GET("users/verify")
+    @GET("api/users/verify")
     suspend fun verifyEmail(@Query("token") token: String): Response<MessageResponse>
 }

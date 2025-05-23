@@ -7,10 +7,15 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.example.pinjampak.presentation.navigation.AppNavGraph
+import com.example.pinjampak.ui.theme.PinjampakTheme
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,9 +35,17 @@ class MainActivity : ComponentActivity() {
         // Minta izin notifikasi
         requestNotificationPermission()
 
+        // Set konten dengan tema
         setContent {
-            val navController = rememberNavController()
-            AppNavGraph(navController = navController)
+            PinjampakTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    val navController = rememberNavController()
+                    AppNavGraph(navController = navController)
+                }
+            }
         }
     }
 
