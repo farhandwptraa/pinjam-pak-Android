@@ -86,10 +86,10 @@ class ProfileRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun ajukanPinjaman(amount: Int, tenor: Int): Boolean {
+    override suspend fun ajukanPinjaman(amount: Int, tenor: Int, lokasi: String): Boolean {
         val token = sharedPrefManager.getToken() ?: return false
         val response = apiService.ajukanPinjaman(
-            PengajuanRequest(amount, tenor),
+            PengajuanRequest(amount, tenor, lokasi),
             "Bearer $token"
         )
         return response.isSuccessful

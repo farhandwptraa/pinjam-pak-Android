@@ -1,5 +1,9 @@
 package com.example.pinjampak.presentation.home
 
+import android.content.Context
+import android.location.Geocoder
+import android.location.Location
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,22 +25,20 @@ class HomeViewModel @Inject constructor(
     private val sharedPrefManager: SharedPrefManager
 ) : ViewModel() {
 
-    // Customer status
     private val _isCustomerDataComplete = MutableStateFlow(false)
     val isCustomerDataComplete: StateFlow<Boolean> = _isCustomerDataComplete.asStateFlow()
 
-    // Plafon data
     private val _plafonMax = MutableStateFlow(0.0)
     val plafonMax: StateFlow<Double> = _plafonMax.asStateFlow()
 
     private val _plafonSisa = MutableStateFlow(0.0)
     val plafonSisa: StateFlow<Double> = _plafonSisa.asStateFlow()
 
-    // Input fields
     var jumlahPinjaman: String by mutableStateOf("")
     var tenor: Int by mutableStateOf(6)
 
-    // Submission state
+    var lokasi: String by mutableStateOf("")
+
     var isLoading by mutableStateOf(false)
         private set
     var submitResult by mutableStateOf<String?>(null)
@@ -51,6 +54,7 @@ class HomeViewModel @Inject constructor(
             .getCustomerId()
             ?.isNotEmpty() == true
     }
+
     fun updateCustomerDataStatus() = refreshCustomerStatus()
 
     private fun loadPlafonData() {
@@ -61,6 +65,31 @@ class HomeViewModel @Inject constructor(
                     _plafonSisa.value = profile.sisaPlafond
                 }
             }
+        }
+    }
+
+    fun setLokasiDariGPS(context: Context, location: Location) {
+        if (!Geocoder.isPresent()) {
+            Log.e("HomeViewModel", "Geocoder tidak tersedia di perangkat ini.")
+            lokasi = "Lokasi tidak diketahui"
+            return
+        }
+
+        try {
+            val geocoder = Geocoder(context, Locale.getDefault())
+            val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+            val address = addresses?.firstOrNull()
+            lokasi = if (address != null) {
+                val result = "${address.locality}, ${address.adminArea}"
+                Log.d("HomeViewModel", "Lokasi ditemukan: $result")
+                result
+            } else {
+                Log.d("HomeViewModel", "Alamat tidak ditemukan.")
+                "Lokasi tidak diketahui"
+            }
+        } catch (e: Exception) {
+            Log.e("HomeViewModel", "Gagal mengambil lokasi: ${e.message}")
+            lokasi = "Lokasi tidak diketahui"
         }
     }
 
@@ -84,7 +113,9 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             isLoading = true
             submitResult = null
-            val success = profileRepository.ajukanPinjaman(amount, tenor)
+            val lokasi = lokasi
+            Log.d("HomeViewModel", "Submit pengajuan: amount=$amount, tenor=$tenor, lokasi=$lokasi")
+            val success = profileRepository.ajukanPinjaman(amount, tenor, lokasi)
             isLoading = false
             submitResult = if (success) "Pengajuan berhasil" else "Pengajuan gagal"
         }

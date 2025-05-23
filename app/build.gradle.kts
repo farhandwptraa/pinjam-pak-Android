@@ -93,4 +93,5 @@ dependencies {
     implementation("androidx.camera:camera-extensions:1.3.0")
     implementation("com.google.android.gms:play-services-auth:21.3.0") // atau versi terbaru
     implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 }

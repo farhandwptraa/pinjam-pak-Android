@@ -57,17 +57,21 @@
             </intent-filter>
 
             <!-- ✅ Deep Link Email Verification -->
-            <intent-filter android:autoVerify="true">
+            <intent-filter android:autoVerify="true"
+                tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                     android:scheme="pinjampak"
-                    android:host="email-verification" />
+                    android:host="email-verification"
+                    tools:ignore="AppLinkUrlError" />
             </intent-filter>
         </activity>
     </application>
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
 </manifest>

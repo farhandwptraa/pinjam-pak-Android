@@ -1,5 +1,10 @@
 package com.example.pinjampak.presentation.home
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -8,12 +13,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.pinjampak.utils.Constants
 import com.example.pinjampak.utils.LoanLevel
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.CancellationTokenSource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -21,7 +30,6 @@ fun HomeContent(
     navController: NavController,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    // Collect state
     val isDataComplete by viewModel.isCustomerDataComplete.collectAsState()
     val plafonMax by viewModel.plafonMax.collectAsState()
     val plafonSisa by viewModel.plafonSisa.collectAsState()
@@ -30,7 +38,6 @@ fun HomeContent(
     val isLoading by remember { derivedStateOf { viewModel.isLoading } }
     val submitResult by remember { derivedStateOf { viewModel.submitResult } }
 
-    // Refresh trigger
     val refreshFlow = navController.currentBackStackEntry
         ?.savedStateHandle
         ?.getStateFlow("refreshHome", false)
@@ -44,10 +51,30 @@ fun HomeContent(
         }
     }
 
-    // Simulation
     val (totalBayar, cicilan) = remember(jumlahPinjaman, tenor) {
         viewModel.calculateSimulasi(jumlahPinjaman.toDoubleOrNull() ?: 0.0, tenor)
     }
+
+    val context = LocalContext.current
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                    location?.let {
+                        viewModel.setLokasiDariGPS(context, it)
+                    }
+                    viewModel.submitPengajuan()
+                }.addOnFailureListener {
+                    viewModel.submitPengajuan()
+                }
+            } else {
+                viewModel.submitPengajuan()
+            }
+        }
+    )
 
     Scaffold(
         topBar = {
@@ -136,7 +163,32 @@ fun HomeContent(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
-                    onClick = { viewModel.submitPengajuan() },
+                    onClick = {
+                        val permission = Manifest.permission.ACCESS_FINE_LOCATION
+                        if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
+                            val cancellationTokenSource = CancellationTokenSource()
+                            fusedLocationClient.getCurrentLocation(
+                                com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY,
+                                cancellationTokenSource.token
+                            ).addOnSuccessListener { location ->
+                                if (location != null) {
+                                    Log.d("HomeContent", "Lokasi didapat: lat=${location.latitude}, lng=${location.longitude}")
+                                    viewModel.setLokasiDariGPS(context, location)
+                                } else {
+                                    Log.e("HomeContent", "Lokasi null saat pengambilan")
+                                }
+                                Log.d("HomeContent", "Mengirim pengajuan dengan lokasi: ${viewModel.lokasi}")
+                                viewModel.submitPengajuan()
+
+                            }.addOnFailureListener { e ->
+                                Log.e("HomeContent", "Gagal ambil lokasi: ${e.message}")
+                                Log.d("HomeContent", "Tetap melanjutkan pengajuan meskipun lokasi gagal didapat")
+                                viewModel.submitPengajuan()
+                            }
+                        } else {
+                            locationPermissionLauncher.launch(permission)
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !isLoading
                 ) {

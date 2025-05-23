@@ -2,5 +2,6 @@ package com.example.pinjampak.data.remote.dto
 
 data class PengajuanRequest(
     val amount: Int,
-    val tenor: Int
+    val tenor: Int,
+    val lokasi: String
 )
