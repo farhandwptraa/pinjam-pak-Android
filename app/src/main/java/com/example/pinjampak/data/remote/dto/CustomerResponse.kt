@@ -1,5 +1,6 @@
 package com.example.pinjampak.data.remote.dto
 
+import com.example.pinjampak.utils.LoanLevel
 import com.google.gson.annotations.SerializedName
 
 data class CustomerResponse(
@@ -18,5 +19,6 @@ data class CustomerResponse(
     @SerializedName("alamat") val alamat: String,
     @SerializedName("provinsi") val provinsi: String,
     @SerializedName("namaCabang") val namaCabang: String,
-    @SerializedName("areaCabang") val areaCabang: String
+    @SerializedName("areaCabang") val areaCabang: String,
+    @SerializedName("loanLevel") val loanLevel: LoanLevel
 )

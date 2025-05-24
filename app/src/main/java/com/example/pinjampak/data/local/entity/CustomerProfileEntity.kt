@@ -2,6 +2,7 @@ package com.example.pinjampak.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.pinjampak.utils.LoanLevel
 
 @Entity(tableName = "customer_profile")
 data class CustomerProfileEntity(
@@ -20,5 +21,6 @@ data class CustomerProfileEntity(
     val alamat: String,
     val provinsi: String,
     val namaCabang: String,
-    val areaCabang: String
+    val areaCabang: String,
+    val loanLevel: LoanLevel
 )

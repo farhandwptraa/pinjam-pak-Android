@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pinjampak.domain.repository.ProfileRepository
+import com.example.pinjampak.utils.LoanLevel
 import com.example.pinjampak.utils.SharedPrefManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +36,7 @@ class HomeViewModel @Inject constructor(
     val plafonSisa: StateFlow<Double> = _plafonSisa.asStateFlow()
 
     var jumlahPinjaman: String by mutableStateOf("")
-    var tenor: Int by mutableStateOf(6)
+    var tenor: Int by mutableStateOf(3)
 
     var lokasi: String by mutableStateOf("")
 
@@ -43,6 +44,12 @@ class HomeViewModel @Inject constructor(
         private set
     var submitResult by mutableStateOf<String?>(null)
         private set
+
+    var loanLevel by mutableStateOf(LoanLevel.LEVEL_4)
+        private set
+
+    val availableTenors: List<Int>
+        get() = loanLevel.tenorRates.keys.toList().sorted()
 
     init {
         refreshCustomerStatus()
@@ -63,6 +70,7 @@ class HomeViewModel @Inject constructor(
                 profileRepository.getCachedCustomerProfile(username)?.let { profile ->
                     _plafonMax.value = profile.plafond
                     _plafonSisa.value = profile.sisaPlafond
+                    loanLevel = profile.loanLevel
                 }
             }
         }
@@ -80,11 +88,8 @@ class HomeViewModel @Inject constructor(
             val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
             val address = addresses?.firstOrNull()
             lokasi = if (address != null) {
-                val result = "${address.locality}, ${address.adminArea}"
-                Log.d("HomeViewModel", "Lokasi ditemukan: $result")
-                result
+                "${address.locality}, ${address.adminArea}"
             } else {
-                Log.d("HomeViewModel", "Alamat tidak ditemukan.")
                 "Lokasi tidak diketahui"
             }
         } catch (e: Exception) {
@@ -94,7 +99,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun calculateSimulasi(jumlah: Double, tenor: Int): Pair<Double, Double> {
-        val bungaRate = 0.02
+        val bungaRate = loanLevel.tenorRates[tenor] ?: 0.02
         val totalBayar = jumlah * (1 + bungaRate * tenor)
         val cicilan = if (tenor > 0) totalBayar / tenor else 0.0
         return totalBayar to cicilan
@@ -114,7 +119,6 @@ class HomeViewModel @Inject constructor(
             isLoading = true
             submitResult = null
             val lokasi = lokasi
-            Log.d("HomeViewModel", "Submit pengajuan: amount=$amount, tenor=$tenor, lokasi=$lokasi")
             val success = profileRepository.ajukanPinjaman(amount, tenor, lokasi)
             isLoading = false
             submitResult = if (success) "Pengajuan berhasil" else "Pengajuan gagal"

@@ -1,15 +1,50 @@
 package com.example.pinjampak.utils
 
 enum class LoanLevel(
-    val level: Int,
-    val maxBungaPercent: Double,
-    val maxTenorMonths: Int
+    val plafonRatio: Double,
+    val maxTenor: Int,
+    val tenorRates: Map<Int, Double>
 ) {
-    LEVEL1(1, 1.5, 3),
-    LEVEL2(2, 1.2, 6),
-    LEVEL3(3, 1.0, 12),
-    LEVEL4(4, 0.8, 24);
-
-    fun description(): String =
-        "Level $level. Max bunga ${maxBungaPercent}% dengan maksimal tenor ${maxTenorMonths} bulan"
+    LEVEL_1(
+        0.2,
+        3,
+        mapOf(
+            1 to 0.04,
+            2 to 0.045,
+            3 to 0.05
+        )
+    ),
+    LEVEL_2(
+        0.4,
+        6,
+        mapOf(
+            1 to 0.035,
+            2 to 0.04,
+            3 to 0.045,
+            6 to 0.055
+        )
+    ),
+    LEVEL_3(
+        0.7,
+        12,
+        mapOf(
+            1 to 0.03,
+            2 to 0.035,
+            3 to 0.04,
+            6 to 0.05,
+            12 to 0.06
+        )
+    ),
+    LEVEL_4(
+        1.0,
+        24,
+        mapOf(
+            1 to 0.025,
+            2 to 0.03,
+            3 to 0.035,
+            6 to 0.045,
+            12 to 0.055,
+            24 to 0.065
+        )
+    );
 }

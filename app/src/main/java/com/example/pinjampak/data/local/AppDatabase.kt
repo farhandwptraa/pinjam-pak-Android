@@ -8,7 +8,7 @@ import com.example.pinjampak.data.local.entity.UserProfileEntity
 
 @Database(
     entities = [UserProfileEntity::class, CustomerProfileEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
