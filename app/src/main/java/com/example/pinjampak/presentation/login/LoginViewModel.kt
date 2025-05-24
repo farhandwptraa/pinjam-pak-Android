@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.activity.result.ActivityResult
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.pinjampak.data.remote.dto.ErrorResponse
 import com.example.pinjampak.data.remote.dto.LoginRequest
 import com.example.pinjampak.data.remote.dto.LoginWithGoogleRequest
 import com.example.pinjampak.domain.repository.AuthRepository
@@ -14,11 +15,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import retrofit2.HttpException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,55 +40,76 @@ class LoginViewModel @Inject constructor(
 
     fun onUsernameChange(username: String) {
         _loginState.update { it.copy(username = username) }
-        Log.d(TAG, "Username changed: $username")
     }
 
     fun onPasswordChange(password: String) {
         _loginState.update { it.copy(password = password) }
-        Log.d(TAG, "Password changed: [PROTECTED]")
     }
 
     fun login() {
-        Log.d(TAG, "Starting normal login")
+        _loginState.update { it.copy(isLoading = true, error = "") }
+
         viewModelScope.launch {
             try {
-                FirebaseMessaging.getInstance().token.addOnSuccessListener { fcmToken ->
-                    Log.d(TAG, "FCM token retrieved: $fcmToken")
-                    viewModelScope.launch {
-                        try {
-                            val request = LoginRequest(
-                                usernameOrEmail = _loginState.value.username,
-                                password = _loginState.value.password,
-                                fcmToken = fcmToken
-                            )
-                            Log.d(TAG, "Login request prepared: $request")
-                            val response = authRepository.login(request)
-                            Log.d(TAG, "Login response received: $response")
+                // 🔁 Ambil FCM token dengan coroutine
+                val fcmToken = FirebaseMessaging.getInstance().token.await()
 
-                            sharedPrefManager.saveToken(response.token)
-                            sharedPrefManager.saveUsername(response.username)
-                            sharedPrefManager.saveCustomerId(response.customerId ?: "")
-                            sharedPrefManager.saveFcmToken(fcmToken)
+                val request = LoginRequest(
+                    usernameOrEmail = _loginState.value.username,
+                    password = _loginState.value.password,
+                    fcmToken = fcmToken
+                )
 
-                            Log.d(TAG, "Token and user info saved in SharedPref")
+                val response = try {
+                    authRepository.login(request)
+                } catch (e: HttpException) {
+                    val errorBody = e.response()?.errorBody()?.string()
+                    val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
+                    throw Exception(errorResponse.message)
+                }
 
-                            profileRepository.fetchAndCacheUserProfile()
-                            profileRepository.fetchAndCacheCustomerProfile()
-
-                            _loginState.update { it.copy(isLoggedIn = true, error = "") }
-                            Log.d(TAG, "User logged in successfully")
-                        } catch (e: Exception) {
-                            Log.d(TAG, "Login failed with exception: ${e.message}")
-                            _loginState.update { it.copy(error = e.message ?: "Login failed") }
-                        }
+                // 🔒 Cek email verified
+                if (!response.emailVerified) {
+                    _loginState.update {
+                        it.copy(
+                            isLoading = false,
+                            error = "Akun belum diverifikasi. Silakan cek email Anda.",
+                            isLoggedIn = false
+                        )
                     }
-                }.addOnFailureListener {
-                    Log.d(TAG, "Failed to retrieve FCM token")
-                    _loginState.update { it.copy(error = "Gagal mengambil FCM token") }
+                    return@launch
+                }
+
+                // ✅ Simpan data ke SharedPreferences
+                with(sharedPrefManager) {
+                    saveToken(response.token)
+                    saveUsername(response.username)
+                    saveCustomerId(response.customerId ?: "")
+                    saveFcmToken(fcmToken)
+                }
+
+                // 📥 Cache profil
+                profileRepository.fetchAndCacheUserProfile()
+                profileRepository.fetchAndCacheCustomerProfile()
+
+                _loginState.update {
+                    it.copy(
+                        isLoading = false,
+                        isLoggedIn = true,
+                        error = "",
+                        role = response.role,
+                        roleId = response.roleId,
+                        customerId = response.customerId
+                    )
                 }
             } catch (e: Exception) {
-                Log.d(TAG, "Login outer exception: ${e.message}")
-                _loginState.update { it.copy(error = e.message ?: "Login failed") }
+                Log.e(TAG, "Login failed: ${e.message}")
+                _loginState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = e.message ?: "Terjadi kesalahan"
+                    )
+                }
             }
         }
     }
@@ -92,65 +117,63 @@ class LoginViewModel @Inject constructor(
     fun getGoogleSignInIntent() = googleSignInClient.signInIntent
 
     fun onGoogleSignInResult(result: ActivityResult) {
-        Log.d(TAG, "onGoogleSignInResult called with resultCode=${result.resultCode}")
         if (result.resultCode == Activity.RESULT_OK) {
             val intent = result.data
             if (intent == null) {
-                Log.e(TAG, "Google Sign-In intent is null")
                 _loginState.update { it.copy(error = "Gagal membuka Google Sign-In") }
                 return
             }
+
             val task = GoogleSignIn.getSignedInAccountFromIntent(intent)
             try {
                 val account = task.getResult(ApiException::class.java)!!
-                val idToken = account.idToken
-                Log.d(TAG, "Google sign-in success, idToken=$idToken")
-                if (idToken == null) {
-                    Log.d(TAG, "Google idToken is null")
-                    _loginState.update { it.copy(error = "Google idToken kosong") }
-                    return
-                }
+                val idToken = account.idToken ?: throw Exception("ID Token kosong")
 
-                // Ambil FCM token dulu sebelum request login dengan Google
                 FirebaseMessaging.getInstance().token.addOnSuccessListener { fcmToken ->
-                    Log.d(TAG, "FCM token retrieved: $fcmToken")
                     sharedPrefManager.saveFcmToken(fcmToken)
-
                     viewModelScope.launch {
                         try {
-                            val request = LoginWithGoogleRequest(
-                                idToken = idToken,
-                                fcmToken = fcmToken
-                            )
+                            val request = LoginWithGoogleRequest(idToken, fcmToken)
                             val response = authRepository.loginWithGoogle(request)
-                            Log.d(TAG, "LoginWithGoogle response: $response")
 
-                            sharedPrefManager.saveToken(response.token)
-                            sharedPrefManager.saveUsername(response.username)
-                            sharedPrefManager.saveCustomerId(response.customerId ?: "")
-                            sharedPrefManager.saveFcmToken(fcmToken)
+                            if (!response.emailVerified) {
+                                _loginState.update {
+                                    it.copy(
+                                        error = "Akun belum diverifikasi. Silakan cek email Anda.",
+                                        isLoggedIn = false
+                                    )
+                                }
+                                return@launch
+                            }
+
+                            with(sharedPrefManager) {
+                                saveToken(response.token)
+                                saveUsername(response.username)
+                                saveCustomerId(response.customerId ?: "")
+                            }
 
                             profileRepository.fetchAndCacheUserProfile()
                             profileRepository.fetchAndCacheCustomerProfile()
 
-                            _loginState.update { it.copy(isLoggedIn = true, error = "") }
-                            Log.d(TAG, "Google login successful")
+                            _loginState.update {
+                                it.copy(
+                                    isLoggedIn = true,
+                                    error = "",
+                                    role = response.role,
+                                    roleId = response.roleId,
+                                    customerId = response.customerId
+                                )
+                            }
                         } catch (e: Exception) {
-                            Log.d(TAG, "Login with Google failed: ${e.message}")
-                            _loginState.update { it.copy(error = e.message ?: "Login with Google failed") }
+                            _loginState.update { it.copy(error = e.message ?: "Login dengan Google gagal") }
                         }
                     }
                 }.addOnFailureListener {
-                    Log.d(TAG, "Failed to retrieve FCM token")
                     _loginState.update { it.copy(error = "Gagal mengambil FCM token") }
                 }
             } catch (e: ApiException) {
-                Log.d(TAG, "Google sign-in failed: ${e.statusCode}, message: ${e.message}")
-                _loginState.update { it.copy(error = "Google sign-in failed: ${e.statusCode}") }
+                _loginState.update { it.copy(error = "Google Sign-In gagal: ${e.message}") }
             }
-        } else {
-            Log.d(TAG, "Google sign-in cancelled or failed, resultCode=${result.resultCode}")
-            _loginState.update { it.copy(error = "Google sign-in gagal atau dibatalkan") }
         }
     }
 }
