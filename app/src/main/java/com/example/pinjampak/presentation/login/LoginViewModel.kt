@@ -139,7 +139,8 @@ class LoginViewModel @Inject constructor(
                             if (!response.emailVerified) {
                                 _loginState.update {
                                     it.copy(
-                                        error = "Akun belum diverifikasi. Silakan cek email Anda.",
+                                        isLoading = false,
+                                        error = "Akun belum diverifikasi. Kami telah mengirim ulang email verifikasi. Silakan cek email Anda.",
                                         isLoggedIn = false
                                     )
                                 }

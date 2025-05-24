@@ -21,6 +21,15 @@ class AuthRepositoryImpl @Inject constructor(
         return try {
             val response = authApi.register(request)
             Result.success(response)
+        } catch (e: retrofit2.HttpException) {
+            val errorBody = e.response()?.errorBody()?.string()
+            val errorMessage = try {
+                val errorResponse = com.google.gson.Gson().fromJson(errorBody, ErrorResponse::class.java)
+                errorResponse.message // ambil hanya field message dari response
+            } catch (ex: Exception) {
+                "Registrasi gagal"
+            }
+            Result.failure(Exception(errorMessage))
         } catch (e: Exception) {
             Result.failure(e)
         }
