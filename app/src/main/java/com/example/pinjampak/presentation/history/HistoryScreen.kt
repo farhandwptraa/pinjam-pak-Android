@@ -73,7 +73,7 @@ fun HistoryScreen(viewModel: HistoryViewModel = hiltViewModel()) {
                                 HistoryRow("Status", item.status)
                                 HistoryRow("Tanggal", item.tanggalPengajuan)
                                 if (!item.catatanMarketing.isNullOrBlank()) {
-                                    HistoryRow("Catatan", item.catatanMarketing!!)
+                                    HistoryRow("Catatan", item.catatanMarketing)
                                 }
                             }
                         }
