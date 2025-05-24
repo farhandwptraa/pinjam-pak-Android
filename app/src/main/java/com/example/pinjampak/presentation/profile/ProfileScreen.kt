@@ -1,18 +1,20 @@
 package com.example.pinjampak.presentation.profile
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.pinjampak.utils.Constants
-import androidx.compose.material3.Card
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun ProfileScreen(
@@ -23,103 +25,130 @@ fun ProfileScreen(
     val customer = viewModel.customerProfile
     val isLoading = viewModel.isLoading
 
-    Column(
+    val gradientColors = listOf(Color(0xFF81D4FA), Color(0xFF0288D1))
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .background(Brush.verticalGradient(gradientColors))
+            .padding(24.dp),
+        contentAlignment = Alignment.TopCenter
     ) {
-        Text("Profil Pengguna", style = MaterialTheme.typography.headlineMedium)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Spacer(modifier = Modifier.height(32.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                "Profil Pengguna",
+                style = MaterialTheme.typography.headlineMedium,
+                color = Color.White
+            )
 
-        if (isLoading) {
-            CircularProgressIndicator()
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-            ) {
-                user?.let {
-                    item {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp),
-                            elevation = CardDefaults.cardElevation(4.dp)
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp)
-                            ) {
-                                Text("Username: ${it.username}", style = MaterialTheme.typography.bodyLarge)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text("Nama Lengkap: ${it.namaLengkap}", style = MaterialTheme.typography.bodyLarge)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text("Email: ${it.email}", style = MaterialTheme.typography.bodyLarge)
+            Spacer(modifier = Modifier.height(24.dp))
+
+            if (isLoading) {
+                CircularProgressIndicator(color = Color.White)
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                ) {
+                    user?.let {
+                        item {
+                            ProfileCard {
+                                ProfileRow(label = "Username", value = it.username)
+                                ProfileRow(label = "Nama Lengkap", value = it.namaLengkap)
+                                ProfileRow(label = "Email", value = it.email)
+                            }
+                        }
+                    }
+
+                    customer?.let {
+                        item {
+                            ProfileCard {
+                                ProfileRow(label = "NIK", value = it.nik)
+                                ProfileRow(label = "Tempat Lahir", value = it.tempatLahir)
+                                ProfileRow(label = "Tanggal Lahir", value = it.tanggalLahir)
+                                ProfileRow(label = "Pekerjaan", value = it.pekerjaan)
+                                ProfileRow(label = "Gaji", value = formatCurrency(it.gaji))
+                                ProfileRow(label = "No HP", value = it.noHp)
+                                ProfileRow(label = "Nama Ibu Kandung", value = it.namaIbuKandung)
+                                ProfileRow(label = "Alamat", value = it.alamat)
+                                ProfileRow(label = "Provinsi", value = it.provinsi)
                             }
                         }
                     }
                 }
 
-                customer?.let {
-                    item {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp),
-                            elevation = CardDefaults.cardElevation(4.dp)
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp)
-                            ) {
-                                Text("NIK: ${it.nik}", style = MaterialTheme.typography.bodyLarge)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text("Tempat Lahir: ${it.tempatLahir}", style = MaterialTheme.typography.bodyLarge)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text("Tanggal Lahir: ${it.tanggalLahir}", style = MaterialTheme.typography.bodyLarge)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text("Pekerjaan: ${it.pekerjaan}", style = MaterialTheme.typography.bodyLarge)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text("Gaji: ${it.gaji}", style = MaterialTheme.typography.bodyLarge)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text("Plafond: ${it.plafond}", style = MaterialTheme.typography.bodyLarge)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text("Sisa Plafond: ${it.sisaPlafond}", style = MaterialTheme.typography.bodyLarge)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text("No HP: ${it.noHp}", style = MaterialTheme.typography.bodyLarge)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text("Nama Ibu Kandung: ${it.namaIbuKandung}", style = MaterialTheme.typography.bodyLarge)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text("Alamat: ${it.alamat}", style = MaterialTheme.typography.bodyLarge)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text("Provinsi: ${it.provinsi}", style = MaterialTheme.typography.bodyLarge)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text("Cabang: ${it.namaCabang} - ${it.areaCabang}", style = MaterialTheme.typography.bodyLarge)
-                            }
-                        }
-                    }
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = { navController.navigate(Constants.CHANGE_PASSWORD) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+                    Text("Ganti Password")
                 }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = {
-                    navController.navigate(Constants.CHANGE_PASSWORD)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-            ) {
-                Text("Ganti Password")
-            }
-            Button(
-                onClick = {
-                    viewModel.logout()
-                    navController.navigate(Constants.DESTINATION_LOGIN)
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Logout")
+
+                Button(
+                    onClick = {
+                        viewModel.logout()
+                        navController.navigate(Constants.DESTINATION_LOGIN)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Logout")
+                }
             }
         }
     }
+}
+
+@Composable
+fun ProfileCard(content: @Composable ColumnScope.() -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(6.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            content = content
+        )
+    }
+}
+
+@Composable
+fun ProfileRow(label: String, value: String) {
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Black
+            )
+        }
+        Divider(modifier = Modifier.padding(top = 4.dp))
+    }
+}
+
+fun formatCurrency(value: Double): String {
+    val formatter = NumberFormat.getNumberInstance(Locale("id", "ID"))
+    return "Rp ${formatter.format(value)}"
 }

@@ -27,11 +27,15 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.pinjampak.utils.Constants
+import com.example.pinjampak.utils.LoanLevel
+import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.delay
 import java.text.NumberFormat
 import java.util.*
+import com.google.accompanist.pager.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
@@ -58,6 +62,15 @@ fun HomeContent(
     LaunchedEffect(Unit) {
         delay(300)
         formVisible = true
+    }
+
+    var loanLevelVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(formVisible) {
+        if (formVisible) {
+            delay(300) // delay sedikit setelah form muncul
+            loanLevelVisible = true
+        }
     }
 
     // Simulasi perhitungan total bayar dan cicilan
@@ -88,6 +101,8 @@ fun HomeContent(
         contentAlignment = Alignment.TopCenter
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+            Spacer(modifier = Modifier.height(32.dp))
 
             PlafonCard(plafonMax, plafonSisa)
 
@@ -132,6 +147,13 @@ fun HomeContent(
                     },
                     submitResult = submitResult
                 )
+            }
+            AnimatedVisibility(
+                visible = loanLevelVisible,
+                enter = fadeIn(tween(600)) + slideInVertically(tween(600), initialOffsetY = { it / 2 }),
+                exit = fadeOut()
+            ) {
+                LoanLevelBenefitsCard()
             }
         }
     }
@@ -299,6 +321,58 @@ fun DropdownMenuTenor(
                 )
             }
         }
+    }
+}
+
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+fun LoanLevelBenefitsCard() {
+    val pagerState = rememberPagerState()
+    val loanLevels = LoanLevel.values()
+    val coroutineScope = rememberCoroutineScope()
+
+    Column {
+        HorizontalPager(
+            count = loanLevels.size,
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .padding(vertical = 16.dp)
+        ) { page ->
+            val level = loanLevels[page]
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .shadow(4.dp, RoundedCornerShape(16.dp)),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "Level: ${level.name}",
+                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                        color = Color(0xFF0288D1)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Tenor up to: ${level.maxTenor} bulan")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    val rate1Bulan = level.tenorRates[1]?.let { (it * 100).toInt() }
+                    Text("Bunga: ${rate1Bulan?.let { "$it%" } ?: "-"}")
+                }
+            }
+        }
+
+        HorizontalPagerIndicator(
+            pagerState = pagerState,
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            activeColor = Color(0xFF0288D1),
+            inactiveColor = Color.LightGray,
+            indicatorWidth = 12.dp,
+            spacing = 8.dp
+        )
     }
 }
 
