@@ -22,7 +22,10 @@ import com.example.pinjampak.presentation.register.VerifyEmailScreen
 import com.example.pinjampak.utils.Constants
 
 @Composable
-fun AppNavGraph(navController: NavHostController) {
+fun AppNavGraph(
+    navController: NavHostController,
+    startDestination: String = Constants.DESTINATION_LOGIN
+) {
     NavHost(
         navController = navController,
         startDestination = Constants.DESTINATION_LOGIN

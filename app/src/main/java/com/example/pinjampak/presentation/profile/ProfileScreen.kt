@@ -14,6 +14,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.pinjampak.utils.Constants
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
 import java.util.Locale
 
 @Composable
@@ -71,7 +72,7 @@ fun ProfileScreen(
                             ProfileCard {
                                 ProfileRow(label = "NIK", value = it.nik)
                                 ProfileRow(label = "Tempat Lahir", value = it.tempatLahir)
-                                ProfileRow(label = "Tanggal Lahir", value = it.tanggalLahir)
+                                ProfileRow(label = "Tanggal Lahir", value = formatTanggalLahir(it.tanggalLahir))
                                 ProfileRow(label = "Pekerjaan", value = it.pekerjaan)
                                 ProfileRow(label = "Gaji", value = formatCurrency(it.gaji))
                                 ProfileRow(label = "No HP", value = it.noHp)
@@ -151,4 +152,15 @@ fun ProfileRow(label: String, value: String) {
 fun formatCurrency(value: Double): String {
     val formatter = NumberFormat.getNumberInstance(Locale("id", "ID"))
     return "Rp ${formatter.format(value)}"
+}
+
+fun formatTanggalLahir(isoDate: String): String {
+    return try {
+        val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.getDefault())
+        val date = isoFormat.parse(isoDate)
+        val outputFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
+        outputFormat.format(date!!)
+    } catch (e: Exception) {
+        isoDate // fallback jika parsing gagal
+    }
 }

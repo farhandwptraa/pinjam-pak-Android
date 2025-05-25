@@ -12,13 +12,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.pinjampak.presentation.profile.formatTanggalLahir
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 @Composable
 fun HistoryScreen(viewModel: HistoryViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsState()
     val gradientColors = listOf(Color(0xFF81D4FA), Color(0xFF0288D1))
+    val filteredPengajuan = state.pengajuanList.filter { it.status.lowercase() != "disbursed" }
 
     Box(
         modifier = Modifier
@@ -37,7 +42,7 @@ fun HistoryScreen(viewModel: HistoryViewModel = hiltViewModel()) {
                 Text("Error: ${state.error}", color = Color.White)
             }
 
-            state.pengajuanList.isEmpty() && state.pinjamanList.isEmpty() -> {
+            filteredPengajuan.isEmpty() && state.pinjamanList.isEmpty() -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -54,7 +59,7 @@ fun HistoryScreen(viewModel: HistoryViewModel = hiltViewModel()) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    if (state.pengajuanList.isNotEmpty()) {
+                    if (filteredPengajuan.isNotEmpty()) {
                         item {
                             Spacer(modifier = Modifier.height(32.dp))
 
@@ -66,12 +71,11 @@ fun HistoryScreen(viewModel: HistoryViewModel = hiltViewModel()) {
                             )
                         }
 
-                        items(state.pengajuanList) { item ->
+                        items(filteredPengajuan) { item ->
                             HistoryCard {
-                                HistoryRow("ID", item.idPengajuan)
                                 HistoryRow("Jumlah", formatCurrency(item.amount))
                                 HistoryRow("Status", item.status)
-                                HistoryRow("Tanggal", item.tanggalPengajuan)
+                                HistoryRow("Tanggal", formatTanggal(item.tanggalPengajuan))
                                 if (!item.catatanMarketing.isNullOrBlank()) {
                                     HistoryRow("Catatan", item.catatanMarketing)
                                 }
@@ -92,11 +96,9 @@ fun HistoryScreen(viewModel: HistoryViewModel = hiltViewModel()) {
 
                         items(state.pinjamanList) { item ->
                             HistoryCard {
-                                HistoryRow("ID", item.idPinjaman)
                                 HistoryRow("Jumlah", formatCurrency(item.amount))
                                 HistoryRow("Status", item.status)
-                                HistoryRow("Pencairan", item.tanggalPencairan)
-                                HistoryRow("Bunga", "${item.bunga}%")
+                                HistoryRow("Pencairan", formatTanggal(item.tanggalPencairan))
                             }
                         }
                     }
@@ -142,4 +144,15 @@ fun HistoryRow(label: String, value: String) {
 fun formatCurrency(value: Int): String {
     val formatter = NumberFormat.getNumberInstance(Locale("id", "ID"))
     return "Rp ${formatter.format(value)}"
+}
+
+fun formatTanggal(isoDate: String): String {
+    return try {
+        val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS", Locale.getDefault())
+        val date = isoFormat.parse(isoDate)
+        val outputFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
+        outputFormat.format(date!!)
+    } catch (e: Exception) {
+        isoDate // fallback jika parsing gagal
+    }
 }

@@ -16,26 +16,32 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.example.pinjampak.presentation.navigation.AppNavGraph
 import com.example.pinjampak.ui.theme.PinjampakTheme
+import com.example.pinjampak.utils.SharedPrefManager
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    @Inject
+    lateinit var sharedPrefManager: SharedPrefManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Inisialisasi Firebase
         FirebaseApp.initializeApp(this)
-
-        // Ambil FCM token
         getFCMToken()
-
-        // Minta izin notifikasi
         requestNotificationPermission()
 
-        // Set konten dengan tema
+        // Cek login sebelum masuk ke AppNavGraph
+        val startDestination = if (sharedPrefManager.isUserLoggedIn()) {
+            "home" // Ganti dengan nama route HomeContent
+        } else {
+            "login"
+        }
+
         setContent {
             PinjampakTheme {
                 Surface(
@@ -43,7 +49,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
-                    AppNavGraph(navController = navController)
+                    AppNavGraph(navController = navController, startDestination = startDestination)
                 }
             }
         }
