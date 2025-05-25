@@ -64,7 +64,7 @@ class HomeViewModel @Inject constructor(
 
     fun updateCustomerDataStatus() = refreshCustomerStatus()
 
-    private fun loadPlafonData() {
+    fun loadPlafonData() {
         viewModelScope.launch {
             sharedPrefManager.getUsername()?.let { username ->
                 profileRepository.getCachedCustomerProfile(username)?.let { profile ->

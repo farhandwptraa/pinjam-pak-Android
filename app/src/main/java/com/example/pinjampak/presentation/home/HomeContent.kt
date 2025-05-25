@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.example.pinjampak.utils.Constants
 import com.example.pinjampak.utils.LoanLevel
@@ -90,6 +91,19 @@ fun HomeContent(
             }
         } else {
             viewModel.submitPengajuan()
+        }
+    }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(navController) {
+        navController.currentBackStackEntryFlow.collect { backStackEntry ->
+            val destination = backStackEntry.destination.route
+            if (destination == Constants.DESTINATION_HOME) {
+                // Refresh data customer dan plafon
+                viewModel.updateCustomerDataStatus()
+                viewModel.loadPlafonData()
+            }
         }
     }
 

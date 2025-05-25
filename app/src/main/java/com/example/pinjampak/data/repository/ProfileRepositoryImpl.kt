@@ -8,6 +8,7 @@ import com.example.pinjampak.data.remote.api.ApiService
 import com.example.pinjampak.data.remote.dto.ChangePasswordRequest
 import com.example.pinjampak.data.remote.dto.LogoutRequest
 import com.example.pinjampak.data.remote.dto.PengajuanRequest
+import com.example.pinjampak.data.remote.dto.ProvinsiResponse
 import com.example.pinjampak.domain.repository.ProfileRepository
 import com.example.pinjampak.utils.SharedPrefManager
 import javax.inject.Inject
@@ -115,5 +116,13 @@ class ProfileRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Log.e("ProfileRepository", "Exception saat logout: ${e.message}")
         }
+    }
+
+    override suspend fun getAllProvinces(): List<ProvinsiResponse> {
+        return apiService.getProvinces()
+    }
+
+    override suspend fun getCitiesByProvince(provinceId: Long): List<String> {
+        return apiService.getCitiesByProvince(provinceId)
     }
 }

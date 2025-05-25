@@ -7,6 +7,7 @@ import com.example.pinjampak.data.remote.dto.LogoutRequest
 import com.example.pinjampak.data.remote.dto.PengajuanRequest
 import com.example.pinjampak.data.remote.dto.PengajuanResponse
 import com.example.pinjampak.data.remote.dto.PinjamanResponse
+import com.example.pinjampak.data.remote.dto.ProvinsiResponse
 import com.example.pinjampak.data.remote.dto.ResetPasswordRequest
 import com.example.pinjampak.data.remote.dto.UserResponse
 import okhttp3.MultipartBody
@@ -78,4 +79,12 @@ interface ApiService {
     suspend fun getPinjamanHistory(
         @Header("Authorization") token: String
     ): List<PinjamanResponse>
+
+    @GET("/api/wilayah/provinsi")
+    suspend fun getProvinces(): List<ProvinsiResponse>
+
+    @GET("/api/wilayah/provinsi/{id}/kota")
+    suspend fun getCitiesByProvince(
+        @Path("id") provinceId: Long
+    ): List<String>
 }

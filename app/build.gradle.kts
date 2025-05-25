@@ -96,4 +96,6 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("com.google.accompanist:accompanist-pager:0.36.0")
     implementation("com.google.accompanist:accompanist-pager-indicators:0.36.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.0")
+
 }

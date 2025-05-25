@@ -54,7 +54,6 @@ fun CameraCaptureScreen(
         if (!hasPermission) return@LaunchedEffect
 
         try {
-            Log.d("CameraX", "Memulai inisialisasi CameraX...")
             val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
             val cameraProvider = cameraProviderFuture.get()
 
@@ -74,10 +73,7 @@ fun CameraCaptureScreen(
                 preview,
                 imageCapture
             )
-
-            Log.d("CameraX", "Kamera berhasil di-bind ke lifecycle.")
         } catch (e: Exception) {
-            Log.e("CameraX", "Gagal inisialisasi kamera: ${e.message}", e)
             Toast.makeText(context, "Gagal memulai kamera: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
@@ -98,7 +94,6 @@ fun CameraCaptureScreen(
             onClick = {
                 if (imageCapture == null) {
                     Toast.makeText(context, "Kamera belum siap", Toast.LENGTH_SHORT).show()
-                    Log.w("CameraX", "User menekan tombol foto tapi imageCapture null.")
                     return@Button
                 }
 
@@ -118,14 +113,12 @@ fun CameraCaptureScreen(
                     contentValues
                 ).build()
 
-                Log.d("CameraX", "Mengambil gambar...")
                 imageCapture?.takePicture(
                     outputOptions,
                     ContextCompat.getMainExecutor(context),
                     object : ImageCapture.OnImageSavedCallback {
                         override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                             val uri = outputFileResults.savedUri
-                            Log.d("CameraX", "Foto berhasil disimpan: $uri")
                             Toast.makeText(context, "Foto disimpan", Toast.LENGTH_SHORT).show()
                             navController.previousBackStackEntry
                                 ?.savedStateHandle
@@ -134,7 +127,6 @@ fun CameraCaptureScreen(
                         }
 
                         override fun onError(exception: ImageCaptureException) {
-                            Log.e("CameraX", "Gagal menyimpan foto", exception)
                             Toast.makeText(context, "Gagal ambil foto", Toast.LENGTH_SHORT).show()
                         }
                     }
