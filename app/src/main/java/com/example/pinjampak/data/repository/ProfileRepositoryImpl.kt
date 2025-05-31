@@ -61,7 +61,6 @@ class ProfileRepositoryImpl @Inject constructor(
                 alamat = response.alamat,
                 provinsi = response.provinsi,
                 namaCabang = response.namaCabang,
-                areaCabang = response.areaCabang,
                 loanLevel = response.loanLevel
             )
             profileDao.insertCustomerProfile(entity)

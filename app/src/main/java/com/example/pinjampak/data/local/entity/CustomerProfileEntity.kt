@@ -21,6 +21,5 @@ data class CustomerProfileEntity(
     val alamat: String,
     val provinsi: String,
     val namaCabang: String,
-    val areaCabang: String,
     val loanLevel: LoanLevel
 )

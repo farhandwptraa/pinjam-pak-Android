@@ -19,6 +19,5 @@ data class CustomerResponse(
     @SerializedName("alamat") val alamat: String,
     @SerializedName("provinsi") val provinsi: String,
     @SerializedName("namaCabang") val namaCabang: String,
-    @SerializedName("areaCabang") val areaCabang: String,
     @SerializedName("loanLevel") val loanLevel: LoanLevel
 )

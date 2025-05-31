@@ -24,7 +24,6 @@ import com.example.pinjampak.utils.Constants
 @Composable
 fun AppNavGraph(
     navController: NavHostController,
-    startDestination: String = Constants.DESTINATION_LOGIN
 ) {
     NavHost(
         navController = navController,
@@ -78,7 +77,7 @@ fun AppNavGraph(
             )
         ) { backStackEntry ->
             val token = backStackEntry.arguments?.getString("token") ?: ""
-            VerifyEmailScreen(token = token)
+            VerifyEmailScreen(token = token, navController = navController)
         }
     }
 }

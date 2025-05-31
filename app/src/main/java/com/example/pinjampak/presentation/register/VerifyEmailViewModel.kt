@@ -23,11 +23,11 @@ class VerifyEmailViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true) }
 
             try {
-                val message = repository.verifyEmail(token)
+                repository.verifyEmail(token)
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        successMessage = message,
+                        successMessage = "Verifikasi berhasil!", // ⬅️ Ganti dengan teks tetap
                         errorMessage = null
                     )
                 }
